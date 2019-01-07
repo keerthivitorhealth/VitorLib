@@ -77,7 +77,7 @@ public class Spiro {
     boolean check = false;
 
 
-    public void startMethod(){
+    public void startMethod(Context context){
 
         Set<BluetoothDevice> bondedSet = mAdapter.getBondedDevices();
         Log.v("", "BluetoothDemo : bondedSet: " + bondedSet);
