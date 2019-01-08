@@ -86,7 +86,7 @@ public class SpirometerVitorActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spirometer_vitor);
+//        setContentView(R.layout.activity_spirometer_vitor);
 
         Log.e("", "WEIGHTTTTTTTTTTTTTTTTTTTTT 111111111111111111");
 
