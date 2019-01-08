@@ -61,7 +61,7 @@ public class SpirometerVitorActivity extends AppCompatActivity {
 //    TextView pe;
 //    TextView fe;
 
-    TextView tv_PEF,tv_FEV1,tv_FEV6,tv_FEV1_6,tv_FEF;
+//    TextView tv_PEF,tv_FEV1,tv_FEV6,tv_FEV1_6,tv_FEF;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0; // we're doing nothing
@@ -77,8 +77,7 @@ public class SpirometerVitorActivity extends AppCompatActivity {
     String dname;
     String devicename;
     TextView txt;
-    Button BTN_connect;
-    ProgressDialog progressDialog1;
+//    ProgressDialog progressDialog1;
     BluetoothAdapter mAdapter;
 
     boolean check = false;
@@ -91,17 +90,15 @@ public class SpirometerVitorActivity extends AppCompatActivity {
         Log.e("", "WEIGHTTTTTTTTTTTTTTTTTTTTT 111111111111111111");
 
 
-        BTN_connect = (Button) findViewById(R.id.button_connect);
 //        pe=(TextView) findViewById(R.id.txt_result1);
 //        fe=(TextView) findViewById(R.id.txt_result2);
 
-        tv_PEF =(TextView) findViewById(R.id.tv_PEF);
-        tv_FEV1 =(TextView) findViewById(R.id.tv_FEV1);
-        tv_FEV6 =(TextView) findViewById(R.id.tv_FEV6);
-        tv_FEV1_6 =(TextView) findViewById(R.id.tv_FEV1_6);
-        tv_FEF =(TextView) findViewById(R.id.tv_FEF);
+//        tv_PEF =(TextView) findViewById(R.id.tv_PEF);
+//        tv_FEV1 =(TextView) findViewById(R.id.tv_FEV1);
+//        tv_FEV6 =(TextView) findViewById(R.id.tv_FEV6);
+//        tv_FEV1_6 =(TextView) findViewById(R.id.tv_FEV1_6);
+//        tv_FEF =(TextView) findViewById(R.id.tv_FEF);
         AddEvents();
-        BTN_connect.performClick();
     }
 
     public void onDestroy() {
@@ -112,85 +109,79 @@ public class SpirometerVitorActivity extends AppCompatActivity {
     private void AddEvents()
     {
         // TODO Auto-generated method stub
-        BTN_connect.setOnClickListener(new View.OnClickListener() {
+        mAdapter = BluetoothAdapter.getDefaultAdapter();
+//        progressDialog1 = ProgressDialog.show(SpirometerVitorActivity.this, "Info", "Please wait", true, false);
+//        progressDialog1.setContentView(R.layout.customprocessdlg);
+//
+//        TextView text1 = (TextView) progressDialog1.findViewById(R.id.msgtxt);
+//        text1.setText("Data Reading in Progress...");
+        mState = STATE_NONE;
+//        Thread th1;
+//        th1 = new Thread()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                // TODO Auto-generated method stub
+//                super.run();
+//                try
+//                {
+//                    check = false;
+//                    sleep(10000);
+//                } catch (InterruptedException e)
+//                {
+//                    // TODO Auto-generated catch block
+//                } finally
+//                {
+//                    progressDialog1.dismiss();
+//                    // cancelmythread();
+//                    if (check == false)
+//                    {
+//                        runOnUiThread(new Runnable()
+//                        {
+//                            public void run()
+//                            {
+//                                Context context = getApplicationContext();
+//                                CharSequence text = "could not connect , please try again.........!";
+//
+//                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+//                                toast.show();
+//                            }
+//                        });
+//                    }
+//                    check = true;
+//                }
+//            }
+//        };
+//        th1.start();
 
-            public void onClick(View v)
+        Set<BluetoothDevice> bondedSet = mAdapter.getBondedDevices();
+        Log.v("", "BluetoothDemo : bondedSet: " + bondedSet);
+
+        int count = 0;
+        if (bondedSet.size() > 0)
+        {
+            for (BluetoothDevice device : bondedSet)
             {
-                mAdapter = BluetoothAdapter.getDefaultAdapter();
-                progressDialog1 = ProgressDialog.show(SpirometerVitorActivity.this, "Info", "Please wait", true, false);
-                progressDialog1.setContentView(R.layout.customprocessdlg);
+                Log.e("", device.getName() + "\n" + device.getAddress());
+                Log.v("", " count = " + count++);
 
-                TextView text1 = (TextView) progressDialog1.findViewById(R.id.msgtxt);
-                text1.setText("Data Reading in Progress...");
-                mState = STATE_NONE;
-                Thread th1;
-                th1 = new Thread()
+                dname = device.getName();
+
+                devicename = dname.substring(0, 4);
+                if (devicename.equalsIgnoreCase("LUNG"))
                 {
-                    @Override
-                    public void run()
+                    if (device != null)
                     {
-                        // TODO Auto-generated method stub
-                        super.run();
-                        try
-                        {
-                            check = false;
-                            sleep(10000);
-                        } catch (InterruptedException e)
-                        {
-                            // TODO Auto-generated catch block
-                        } finally
-                        {
-                            progressDialog1.dismiss();
-                            // cancelmythread();
-                            if (check == false)
-                            {
-                                runOnUiThread(new Runnable()
-                                {
-                                    public void run()
-                                    {
-                                        Context context = getApplicationContext();
-                                        CharSequence text = "could not connect , please try again.........!";
-
-                                        Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
-                                        toast.show();
-                                    }
-                                });
-                            }
-                            check = true;
-                        }
+                        if (getState() != STATE_CONNECTED)
+                            connect(device, true);
                     }
-                };
-                th1.start();
-
-                Set<BluetoothDevice> bondedSet = mAdapter.getBondedDevices();
-                Log.v("", "BluetoothDemo : bondedSet: " + bondedSet);
-
-                int count = 0;
-                if (bondedSet.size() > 0)
-                {
-                    for (BluetoothDevice device : bondedSet)
-                    {
-                        Log.e("", device.getName() + "\n" + device.getAddress());
-                        Log.v("", " count = " + count++);
-
-                        dname = device.getName();
-
-                        devicename = dname.substring(0, 4);
-                        if (devicename.equalsIgnoreCase("LUNG"))
-                        {
-                            if (device != null)
-                            {
-                                if (getState() != STATE_CONNECTED)
-                                    connect(device, true);
-                            }
-                        }
-                    }
-                } else
-                {
-                    Log.e("", "No Devices");
                 }
             }
-        });
+        } else
+        {
+            Log.e("", "No Devices");
+        }
     }
 
     private synchronized void setState(int state)
@@ -410,7 +401,7 @@ public class SpirometerVitorActivity extends AppCompatActivity {
 
         public void run()
         {
-            progressDialog1.dismiss();
+//            progressDialog1.dismiss();
             check = true;
             Log.i("@@", "finally method..");
             Log.i(TAG, "BEGIN mConnectedThread");
@@ -485,28 +476,28 @@ public class SpirometerVitorActivity extends AppCompatActivity {
 //                Log.d("FEV value","" +FEV);
                 Log.d("PEF value",""+stPEF);
 
-                SpirometerVitorActivity.this.runOnUiThread(new Runnable() {
-
-                    public void run() {
-
-                        SpirometerVitorActivity.this.tv_PEF.setText    (" PEF            :   "+stPEF);
-                        SpirometerVitorActivity.this.tv_FEV1.setText   (" FEV1           :   "+stFEV1);
-                        SpirometerVitorActivity.this.tv_FEV6.setText   (" FEV6           :   "+stFEV6);
-                        SpirometerVitorActivity.this.tv_FEV1_6.setText (" FEV1/FEV       :   "+stFEV1_6);
-                        SpirometerVitorActivity.this.tv_FEF.setText    (" FEF            :   "+stFEF1);
-
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra("PEF",stPEF);
-                        returnIntent.putExtra("FEV1",stFEV1);
-                        returnIntent.putExtra("FEV6",stFEV6);
-                        returnIntent.putExtra("FEV1/FEV",stFEV1_6);
-                        returnIntent.putExtra("FEF",stFEF1);
-                        setResult(Activity.RESULT_OK,returnIntent);
-                        finish();
-
-                    }
-
-                });
+//                SpirometerVitorActivity.this.runOnUiThread(new Runnable() {
+//
+//                    public void run() {
+//
+////                        SpirometerVitorActivity.this.tv_PEF.setText    (" PEF            :   "+stPEF);
+////                        SpirometerVitorActivity.this.tv_FEV1.setText   (" FEV1           :   "+stFEV1);
+////                        SpirometerVitorActivity.this.tv_FEV6.setText   (" FEV6           :   "+stFEV6);
+////                        SpirometerVitorActivity.this.tv_FEV1_6.setText (" FEV1/FEV       :   "+stFEV1_6);
+////                        SpirometerVitorActivity.this.tv_FEF.setText    (" FEF            :   "+stFEF1);
+//
+//                        Intent returnIntent = new Intent();
+//                        returnIntent.putExtra("PEF",stPEF);
+//                        returnIntent.putExtra("FEV1",stFEV1);
+//                        returnIntent.putExtra("FEV6",stFEV6);
+//                        returnIntent.putExtra("FEV1/FEV",stFEV1_6);
+//                        returnIntent.putExtra("FEF",stFEF1);
+//                        setResult(Activity.RESULT_OK,returnIntent);
+//                        finish();
+//
+//                    }
+//
+//                });
             } catch (IOException e)
             {
                 Log.e(TAG, "@@disconnected", e);
