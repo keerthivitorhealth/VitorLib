@@ -1,1 +1,1 @@
-include ':app', ':spirometer'
+include ':app', ':spirometer', ':weighscale'

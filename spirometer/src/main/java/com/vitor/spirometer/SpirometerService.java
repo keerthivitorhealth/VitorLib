@@ -216,7 +216,6 @@ public class SpirometerService extends Service {
         public void run() {
 
             Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
-
             Log.d("@@@@@@@@", "beginnnnn");
 
             setName("ConnectThread" + mSocketType);
