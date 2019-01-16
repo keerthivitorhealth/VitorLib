@@ -1,18 +1,17 @@
-package com.vitor.vlib;
+package com.vitor.spirometer;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,7 +23,7 @@ import java.math.BigInteger;
 import java.util.Set;
 import java.util.UUID;
 
-public class SpirometerVitorActivity extends AppCompatActivity {
+public class SpirometerService extends Service {
 
     private static final String TAG = "SensorService";
     private static final boolean D = true;
@@ -38,8 +37,6 @@ public class SpirometerVitorActivity extends AppCompatActivity {
             .fromString("00001101-0000-1000-8000-00805f9b34fb");
     private static final int BYTES_SIX = 6;
     private static final int BYTES_FIFTY_EIGHT = 58;
-    private static final int HIDE = 1;
-    private static final int SHOW = 2;
 
     // Member fields
 
@@ -58,10 +55,7 @@ public class SpirometerVitorActivity extends AppCompatActivity {
     int FEF1,FEF2,FEF3;
 
     String stPEF,stFEV1,stFEV6,stFEV1_6,stFEF1;
-//    TextView pe;
-//    TextView fe;
-
-//    TextView tv_PEF,tv_FEV1,tv_FEV6,tv_FEV1_6,tv_FEF;
+    TextView tv_PEF,tv_FEV1,tv_FEV6,tv_FEV1_6,tv_FEF;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0; // we're doing nothing
@@ -72,88 +66,94 @@ public class SpirometerVitorActivity extends AppCompatActivity {
     public static final int STATE_CONNECTED = 3; // now connected to a remote
     // device
 
-    public String res1 = "", res2 = "", res3 = "", res4 = "", res5 = "",
-            res6 = "";
     String dname;
     String devicename;
-    TextView txt;
-//    ProgressDialog progressDialog1;
     BluetoothAdapter mAdapter;
 
     boolean check = false;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_spirometer_vitor);
-
-        Log.e("", "WEIGHTTTTTTTTTTTTTTTTTTTTT 111111111111111111");
-
-
-//        pe=(TextView) findViewById(R.id.txt_result1);
-//        fe=(TextView) findViewById(R.id.txt_result2);
-
-//        tv_PEF =(TextView) findViewById(R.id.tv_PEF);
-//        tv_FEV1 =(TextView) findViewById(R.id.tv_FEV1);
-//        tv_FEV6 =(TextView) findViewById(R.id.tv_FEV6);
-//        tv_FEV1_6 =(TextView) findViewById(R.id.tv_FEV1_6);
-//        tv_FEF =(TextView) findViewById(R.id.tv_FEF);
-        AddEvents();
+    public SpirometerService() {
     }
 
-    public void onDestroy() {
-        super.onDestroy();
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    @Override
+    public void onCreate() {
+//        Toast.makeText(this, "SpirometerService onCreate called", Toast.LENGTH_LONG).show();
+
+    }
+
+
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        //getting systems default ringtone
+        if (intent!=null) {
+            String SpirometerDeviceID = intent.getStringExtra("SpirometerDeviceID");
+//            Toast.makeText(this, "onStartCommand called : " + SpirometerDeviceID, Toast.LENGTH_LONG).show();
+            // do something with the value here
+        } else {
+
+        }
+        AddEvents();
+
+
+        //we have some options for service
+        //start sticky means service will be explicity started and stopped
+        return START_STICKY;
     }
 
 
     private void AddEvents()
     {
         // TODO Auto-generated method stub
+
         mAdapter = BluetoothAdapter.getDefaultAdapter();
-//        progressDialog1 = ProgressDialog.show(SpirometerVitorActivity.this, "Info", "Please wait", true, false);
-//        progressDialog1.setContentView(R.layout.customprocessdlg);
-//
-//        TextView text1 = (TextView) progressDialog1.findViewById(R.id.msgtxt);
-//        text1.setText("Data Reading in Progress...");
+
         mState = STATE_NONE;
-//        Thread th1;
-//        th1 = new Thread()
-//        {
-//            @Override
-//            public void run()
-//            {
-//                // TODO Auto-generated method stub
-//                super.run();
-//                try
-//                {
-//                    check = false;
-//                    sleep(10000);
-//                } catch (InterruptedException e)
-//                {
-//                    // TODO Auto-generated catch block
-//                } finally
-//                {
-//                    progressDialog1.dismiss();
-//                    // cancelmythread();
-//                    if (check == false)
-//                    {
-//                        runOnUiThread(new Runnable()
-//                        {
-//                            public void run()
-//                            {
-//                                Context context = getApplicationContext();
-//                                CharSequence text = "could not connect , please try again.........!";
-//
+
+        Thread th1 = new Thread()
+        {
+            @Override
+            public void run()
+            {
+                // TODO Auto-generated method stub
+                super.run();
+                try
+                {
+                    check = false;
+                    sleep(10000);
+                } catch (InterruptedException e)
+                {
+                    // TODO Auto-generated catch block
+                } finally
+                {
+//                            progressDialog1.dismiss();
+                    // cancelmythread();
+                    if (check == false)
+                    {
+                        new Runnable()
+                        {
+                            public void run()
+                            {
+                                Context context = getApplicationContext();
+                                CharSequence text = "could not connect , please try again.........!";
+
 //                                Toast toast = Toast.makeText(context, text, Toast.LENGTH_LONG);
+//                                toast.setGravity(Gravity.CENTER | Gravity.CENTER, 0, 0);
 //                                toast.show();
-//                            }
-//                        });
-//                    }
-//                    check = true;
-//                }
-//            }
-//        };
-//        th1.start();
+                            }
+                        };
+                    }
+                    check = true;
+                }
+            }
+        };
+        th1.start();
 
         Set<BluetoothDevice> bondedSet = mAdapter.getBondedDevices();
         Log.v("", "BluetoothDemo : bondedSet: " + bondedSet);
@@ -184,104 +184,11 @@ public class SpirometerVitorActivity extends AppCompatActivity {
         }
     }
 
-    private synchronized void setState(int state)
-    {
-        if (D)
-            Log.d(TAG, "setState() " + mState + " -> " + state);
-        mState = state;
-    }
 
-    /**
-     * Return the current connection state.
-     */
-    public synchronized int getState()
-    {
-        return mState;
-    }
+    @Override
+    public void onDestroy() {
+//        Toast.makeText(this, "Service Stopped", Toast.LENGTH_LONG).show();
 
-    public synchronized void connect(BluetoothDevice device, boolean secure)
-    {
-        if (D)
-            Log.d(TAG, "connect to: " + device);
-
-        // Cancel any thread attempting to make a connection
-        if (mState == STATE_CONNECTING)
-        {
-            if (mConnectThread != null)
-            {
-                mConnectThread.cancel();
-                mConnectThread = null;
-            }
-        }
-
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null)
-        {
-            mConnectedThread.cancel();
-            mConnectedThread = null;
-        }
-
-        // Start the thread to connect with the given device
-
-        mConnectThread = new ConnectThread(device, secure);
-        mConnectThread.start();
-    }
-
-    public synchronized void connected(BluetoothSocket socket, BluetoothDevice device, final String socketType) {
-        if (D)
-            Log.d(TAG, "connected, Socket Type:" + socketType);
-
-        // Cancel the thread that completed the connection
-        if (mConnectThread != null)
-        {
-            mConnectThread.cancel();
-            mConnectThread = null;
-        }
-
-        // Cancel any thread currently running a connection
-        if (mConnectedThread != null)
-        {
-            mConnectedThread.cancel();
-            mConnectedThread = null;
-        }
-
-        // Start the thread to manage the connection and perform transmissions
-        mConnectedThread = new ConnectedThread(socket, socketType);
-        mConnectedThread.start();
-        setState(STATE_CONNECTED);
-    }
-
-    public synchronized void stop()
-    {
-        if (D)
-            Log.d(TAG, "stop");
-
-        if (mConnectThread != null)
-        {
-            mConnectThread.cancel();
-            mConnectThread = null;
-        }
-
-        if (mConnectedThread != null)
-        {
-            mConnectedThread.cancel();
-            mConnectedThread = null;
-        }
-
-        setState(STATE_NONE);
-    }
-
-
-    public void write(byte[] out)
-    {
-        ConnectedThread r;
-        synchronized (this)
-        {
-            if (mState != STATE_CONNECTED)
-                return;
-            r = mConnectedThread;
-        }
-        r.write(out);
     }
 
     private class ConnectThread extends Thread
@@ -296,8 +203,7 @@ public class SpirometerVitorActivity extends AppCompatActivity {
             BluetoothSocket tmp = null;
             mSocketType = secure ? "Secure" : "Insecure";
 
-            try
-            {
+            try {
                 if (secure) {
                     tmp = device.createRfcommSocketToServiceRecord(MY_UUID_SECURE);
                 }
@@ -307,37 +213,35 @@ public class SpirometerVitorActivity extends AppCompatActivity {
             mmSocket = tmp;
         }
 
-        public void run()
-        {
+        public void run() {
+
             Log.i(TAG, "BEGIN mConnectThread SocketType:" + mSocketType);
+
             Log.d("@@@@@@@@", "beginnnnn");
 
             setName("ConnectThread" + mSocketType);
             mAdapter.cancelDiscovery();
 
-            try
-            {
+            try {
                 mmSocket.connect();
-            } catch (IOException e)
-            {
+            } catch (IOException e) {
                 // Close the socket
                 try {
                     mmSocket.close();
                 } catch (IOException e2) {
-                    Log.e(TAG, "unable to close() " + mSocketType + " socket during connection failure", e2);
+                    Log.e(TAG, "unable to close() " + mSocketType
+                            + " socket during connection failure", e2);
                 }
                 return;
             }
 
             // Reset the ConnectThread because we're done
-            synchronized (SpirometerVitorActivity.this)
-            {
+            synchronized (getApplicationContext()) {
                 mConnectThread = null;
             }
 
             // Start the connected thread
             connected(mmSocket, mmDevice, mSocketType);
-
         }
 
         public void cancel()
@@ -347,27 +251,14 @@ public class SpirometerVitorActivity extends AppCompatActivity {
                 mmSocket.close();
             } catch (IOException e)
             {
-                Log.e(TAG, "close() of connect " + mSocketType                        + " socket failed", e);
+                Log.e(TAG, "close() of connect " + mSocketType
+                        + " socket failed", e);
             }
         }
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event)
-    {
-        if (keyCode == KeyEvent.KEYCODE_BACK)
-        {
-            moveTaskToBack(false);
-            cancelmythread();
-            // txt3.setText(res1.toString());
 
-            //cancelmythread();
-            // txt4.setText(res2.toString());
-            finish();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+
 
     /**
      * This thread runs during a connection with a remote device. It handles all
@@ -401,10 +292,10 @@ public class SpirometerVitorActivity extends AppCompatActivity {
 
         public void run()
         {
-//            progressDialog1.dismiss();
             check = true;
             Log.i("@@", "finally method..");
             Log.i(TAG, "BEGIN mConnectedThread");
+
 
             byte[] inBuffer = new byte[59];
             byte[] outBuffer = new byte[7];
@@ -425,12 +316,14 @@ public class SpirometerVitorActivity extends AppCompatActivity {
             int readCount = 0;
             try
             {
-                Log.i("@@@","read from..");
+
+                Log.i("@@@","reda from..");
                 while (bytes < 59)
                 {
-                    readCount = mmInStream.read(inBuffer, bytes, 59 - bytes);
+
+                    readCount = mmInStream.read(inBuffer, bytes,
+                            59 - bytes);
                     bytes = bytes + readCount;
-                    //Log.d("Bytes count",""+inBuffer[bytes]);
 
                 }
                 BigInteger mBigInteger = new BigInteger(inBuffer);
@@ -474,54 +367,20 @@ public class SpirometerVitorActivity extends AppCompatActivity {
                 stPEF=""+FEV1+""+FEV2+FEV3;
 //                PEF=""+PEF1+PEF2+PEF3;
 //                Log.d("FEV value","" +FEV);
-                Log.d("PEF value",""+stPEF);
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra("PEF", stPEF);
-                returnIntent.putExtra("FEV1", stFEV1);
-                returnIntent.putExtra("FEV6", stFEV6);
-                returnIntent.putExtra("FEV1/FEV", stFEV1_6);
-                returnIntent.putExtra("FEF", stFEF1);
-                setResult(Activity.RESULT_OK, returnIntent);
-                finish();
-
-//                SpirometerVitorActivity.this.runOnUiThread(new Runnable() {
-//
-//                    public void run() {
-//
-////                        SpirometerVitorActivity.this.tv_PEF.setText    (" PEF            :   "+stPEF);
-////                        SpirometerVitorActivity.this.tv_FEV1.setText   (" FEV1           :   "+stFEV1);
-////                        SpirometerVitorActivity.this.tv_FEV6.setText   (" FEV6           :   "+stFEV6);
-////                        SpirometerVitorActivity.this.tv_FEV1_6.setText (" FEV1/FEV       :   "+stFEV1_6);
-////                        SpirometerVitorActivity.this.tv_FEF.setText    (" FEF            :   "+stFEF1);
-//
-//                        Intent returnIntent = new Intent();
-//                        returnIntent.putExtra("PEF",stPEF);
-//                        returnIntent.putExtra("FEV1",stFEV1);
-//                        returnIntent.putExtra("FEV6",stFEV6);
-//                        returnIntent.putExtra("FEV1/FEV",stFEV1_6);
-//                        returnIntent.putExtra("FEF",stFEF1);
-//                        setResult(Activity.RESULT_OK,returnIntent);
-//                        finish();
-//
-//                    }
-//
-//                });
+//                Log.d("PEF value",""+stPEF);
+                Log.d("DATA","SPIR DATA : "+stPEF +" , "+ stFEV1+" , "+stFEV6+" , "+stFEV1_6+" , "+stFEF1);
+                sendDataToActivity(stPEF,stFEV1,stFEV6,stFEV1_6,stFEF1);
             } catch (IOException e)
             {
                 Log.e(TAG, "@@disconnected", e);
-
             }
-
         }
-
-
 
         public void write(byte[] buffer)
         {
             try
             {
                 mmOutStream.write(buffer);
-
             } catch (IOException e)
             {
                 Log.e(TAG, "Exception during write", e);
@@ -539,31 +398,91 @@ public class SpirometerVitorActivity extends AppCompatActivity {
         }
     }
 
+    private void sendDataToActivity(String stPEF , String stFEV1, String stFEV6, String stFEV1_6, String stFEF1) {
+        Intent intent = new Intent("SpirometerData");
+        intent.putExtra("PEF", stPEF);
+        intent.putExtra("FEV1", stFEV1);
+        intent.putExtra("FEV6", stFEV6);
+        intent.putExtra("FEV1_6", stFEV1_6);
+        intent.putExtra("FEF1", stFEF1);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+    }
 
+    private void sendLocationBroadcast(Intent intent){
 
-    public void cancelmythread()
+    }
+
+    public synchronized void connect(BluetoothDevice device, boolean secure)
     {
-        try
+        if (D)
+            Log.d(TAG, "connect to: " + device);
+
+        // Cancel any thread attempting to make a connection
+        if (mState == STATE_CONNECTING)
         {
             if (mConnectThread != null)
             {
                 mConnectThread.cancel();
                 mConnectThread = null;
             }
-
-            if (mConnectedThread != null)
-            {
-                mConnectedThread.cancel();
-                mConnectedThread = null;
-            }
-
-            setState(STATE_NONE);
         }
-        catch (Exception e)
+
+        // Cancel any thread currently running a connection
+        if (mConnectedThread != null)
         {
-            // TODO: handle exception
+            mConnectedThread.cancel();
+            mConnectedThread = null;
         }
+
+        // Start the thread to connect with the given device
+
+        mConnectThread = new ConnectThread(device, secure);
+        mConnectThread.start();
+
     }
+
+
+    public synchronized void connected(BluetoothSocket socket, BluetoothDevice device, final String socketType) {
+        if (D)
+            Log.d(TAG, "connected, Socket Type:" + socketType);
+
+        // Cancel the thread that completed the connection
+        if (mConnectThread != null)
+        {
+            mConnectThread.cancel();
+            mConnectThread = null;
+        }
+
+        // Cancel any thread currently running a connection
+        if (mConnectedThread != null)
+        {
+            mConnectedThread.cancel();
+            mConnectedThread = null;
+        }
+
+        // Start the thread to manage the connection and perform transmissions
+        mConnectedThread = new ConnectedThread(socket, socketType);
+        mConnectedThread.start();
+        setState(STATE_CONNECTED);
+    }
+
+    private synchronized void setState(int state)
+    {
+        if (D)
+            Log.d(TAG, "setState() " + mState + " -> " + state);
+        mState = state;
+
+    }
+
+    /**
+     * Return the current connection state.
+     */
+    public synchronized int getState()
+    {
+        return mState;
+    }
+
+
 
 
 }

@@ -6,7 +6,12 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
 
     <application>
-        <activity android:name=".SpirometerActivity"></activity>
+        <activity android:name=".SpirometerActivity" />
+
+        <service
+            android:name=".SpirometerService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
