@@ -1,1 +1,1 @@
-include ':app', ':spirometer', ':weighscale'
+include ':app', ':spirometer', ':weighscale', ':bloodsugar', ':synclib'

@@ -15,7 +15,6 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -34,6 +33,7 @@ public class WeighScaleChipseaService extends Service {
 
     private final static int REQUEST_ENABLE_BT = 1;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    String WeighScaleDeviceID;
 
     public WeighScaleChipseaService() {
     }
@@ -78,7 +78,7 @@ public class WeighScaleChipseaService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         //getting systems default ringtone
         if (intent!=null) {
-            String SpirometerDeviceID = intent.getStringExtra("SpirometerDeviceID");
+            WeighScaleDeviceID = intent.getStringExtra("WeighScaleDeviceID");
 //            Toast.makeText(this, "onStartCommand called : " + SpirometerDeviceID, Toast.LENGTH_LONG).show();
             // do something with the value here
         } else {
@@ -99,12 +99,14 @@ public class WeighScaleChipseaService extends Service {
         public void onScanResult(int callbackType, ScanResult result) {
 
             final byte[] scanRecord = result.getScanRecord().getBytes();
-            if(result.getScanRecord()!=null && result.getScanRecord().getDeviceName()!=null && result.getScanRecord().getDeviceName().contains("Chipsea")){
+            if(WeighScaleDeviceID!=null){
+                if(result.getScanRecord()!=null && result.getScanRecord().getDeviceName()!=null && result.getDevice().getAddress().equals(WeighScaleDeviceID)){
 //                if(result.getScanRecord()!=null && result.getDevice().getAddress().equals("CB:8E:CD:50:AB:CD")){
-                printScanRecord(result.getScanRecord().getBytes());
-//                tv_peripheral.append("\n" +"Device Name: " + result.toString()  +"\n"+"SCANRECORD : "+scanRecord.toString()+"\n");
-                Log.i("WS","\n" +"Device Name: " + result.toString()  +"\n"+"SCANRECORD : "+result.getScanRecord().getBytes().toString()+"\n");
+                    printScanRecord(result.getScanRecord().getBytes());
+                    Log.i("WS","\n" +"Device Name: " + result.toString()  +"\n"+"SCANRECORD : "+result.getScanRecord().getBytes().toString()+"\n");
+                }
             }
+
 
             // auto scroll for text view
 //            final int scrollAmount = tv_peripheral.getLayout().getLineTop(tv_peripheral.getLineCount()) - tv_peripheral.getHeight();
@@ -213,7 +215,7 @@ public class WeighScaleChipseaService extends Service {
     private void sendDataToActivity(String weight) {
         Intent intent = new Intent("WeighScaleChipseaData");
         intent.putExtra("weight", weight);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+//        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
     public void onDestroy() {
