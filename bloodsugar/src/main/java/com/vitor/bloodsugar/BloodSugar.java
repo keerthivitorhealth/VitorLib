@@ -5,7 +5,10 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBar;
+import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -17,6 +20,8 @@ import org.maniteja.com.synclib.helper.SyncLib;
 import org.maniteja.com.synclib.helper.Util;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class BloodSugar extends Service {
@@ -52,6 +57,10 @@ public class BloodSugar extends Service {
 
     @Override
     public void onCreate() {
+        if(!mConnected)
+        {
+            syncLib.startReceiver();
+        }
 //        Toast.makeText(this, "BloodSugarService onCreate called", Toast.LENGTH_LONG).show();
     }
 
@@ -91,6 +100,85 @@ public class BloodSugar extends Service {
     }
 
 
+    public void setConnectionStatus(String s, boolean connectionStatus)
+    {
+        mConnected = connectionStatus;
+        if(mConnected)
+        {
+//            bluetoothIcon.setBackgroundResource(R.drawable.connect);
+//            batteryIcon.setVisibility(View.VISIBLE);
+        }
+        else
+        {
+//            batteryIcon.setVisibility(View.INVISIBLE);
+//            bluetoothIcon.setBackgroundResource(R.drawable.disconnect);
+        }
+    }
+
+
+    public void setBatteryLevel(int value)
+    {
+        if (value > 25 && value < 33)
+        {
+            if (animation != null)
+                animation.cancel();
+//            batteryIcon.setBackgroundResource(R.drawable.battery1);
+        } else if (value >= 33 && value < 50)
+        {
+            if (animation != null)
+                animation.cancel();
+//            batteryIcon.setBackgroundResource(R.drawable.battery2);
+        } else if (value >= 50)
+        {
+            if (animation != null)
+                animation.cancel();
+//            batteryIcon.setBackgroundResource(R.drawable.battery3);
+        } else if (value > 0 && value <= 25)
+        {
+//            batteryIcon.setBackgroundResource(R.drawable.battery0);
+            animation = new AlphaAnimation(1, 0);
+            animation.setDuration(400);
+            animation.setInterpolator(new LinearInterpolator());
+            animation.setRepeatCount(Animation.INFINITE);
+            animation.setRepeatMode(Animation.REVERSE);
+//            batteryIcon.startAnimation(animation);
+        }
+    }
+
+//    @Override
+    public void setManufacturerName(String s)
+    {
+        //Manufaturer Name
+    }
+
+//    @Override
+    public void setSerialNumber(String s)
+    {
+        //Serial Number
+    }
+
+//    @Override
+    public void setModelNumber(String s)
+    {
+        //Manufacture Date
+    }
+
+//    @Override
+    public void getOfflineResults(ArrayList<String> arrayList)
+    {
+        if(arrayList.size()>0)
+        {
+            Collections.reverse(arrayList);
+//            offlineTitle.setText("Offline Results");
+//            ReadingAdapter readingAdapter = new ReadingAdapter(arrayList);
+//            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+//            readingrecycler.setLayoutManager(mLayoutManager);
+//            readingrecycler.setItemAnimator(new DefaultItemAnimator());
+//            readingrecycler.setAdapter(readingAdapter);
+        }
+    }
+
+
 
 
     @Override
@@ -103,10 +191,7 @@ public class BloodSugar extends Service {
     private void sendDataToActivity(String stPEF , String stFEV1, String stFEV6, String stFEV1_6, String stFEF1) {
         Intent intent = new Intent("BloodSugarData");
         intent.putExtra("PEF", stPEF);
-        intent.putExtra("FEV1", stFEV1);
-        intent.putExtra("FEV6", stFEV6);
-        intent.putExtra("FEV1_6", stFEV1_6);
-        intent.putExtra("FEF1", stFEF1);
+
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
 
