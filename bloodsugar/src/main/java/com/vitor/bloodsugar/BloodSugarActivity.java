@@ -350,6 +350,7 @@ public class BloodSugarActivity extends AppCompatActivity implements Communicato
         }
     }
 
+    //This method is used to navigate between the activities
     @Override
     public void setSwitchActivity()
     {
